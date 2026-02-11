@@ -1,3 +1,11 @@
+//====================================================
+// FSM-based RTL Control Unit
+// Author: Suchet
+// Description:
+//   Synchronous FSM modeling control logic commonly
+//   used in SoC / ASIC subsystems.
+//====================================================
+
 module fsm_controller (
     input  wire clk,
     input  wire reset,
@@ -9,15 +17,18 @@ module fsm_controller (
     output reg  fault
 );
 
-    reg [2:0] current_state, next_state;
-
+    // State encoding
     localparam IDLE  = 3'b000,
                INIT  = 3'b001,
                RUN   = 3'b010,
                DONE  = 3'b011,
                ERROR = 3'b100;
 
-    // State register
+    reg [2:0] current_state, next_state;
+
+    //========================================
+    // State Register (Synchronous Reset)
+    //========================================
     always @(posedge clk) begin
         if (reset)
             current_state <= IDLE;
@@ -25,7 +36,9 @@ module fsm_controller (
             current_state <= next_state;
     end
 
-    // Next-state logic
+    //========================================
+    // Next-State Logic
+    //========================================
     always @(*) begin
         next_state = current_state;
         case (current_state)
@@ -35,19 +48,23 @@ module fsm_controller (
                    else if (done) next_state = DONE;
             DONE:  next_state = DONE;
             ERROR: next_state = ERROR;
+            default: next_state = IDLE;
         endcase
     end
 
-    // Output logic
+    //========================================
+    // Output Logic (Moore-style)
+    //========================================
     always @(*) begin
-        busy  = 0;
-        valid = 0;
-        fault = 0;
+        busy  = 1'b0;
+        valid = 1'b0;
+        fault = 1'b0;
 
         case (current_state)
-            INIT, RUN: busy = 1;
-            DONE:     valid = 1;
-            ERROR:    fault = 1;
+            INIT,
+            RUN:   busy  = 1'b1;
+            DONE:  valid = 1'b1;
+            ERROR: fault = 1'b1;
         endcase
     end
 
