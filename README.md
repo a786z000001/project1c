@@ -1,3 +1,6 @@
 FSM-based RTL control unit implemented in Verilog.
-Includes synchronous reset, control signal generation,
-and testbench-based functional verification using GTKWave.
+
+The design models SoC-style control logic using a finite state machine with
+synchronous reset handling and control signal generation. Functional
+verification is performed using a self-written Verilog testbench and
+waveform inspection via GTKWave.
